@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>My Book Library</title>
+
+
+  <style>
+
+    /* =====================================
+       BASIC
+       ===================================== */
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      background: transparent;
+    }
+
+    body {
+      color: #3b3935;
+
+      font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+    }
+
+
+    /* =====================================
+       MAIN WIDGET
+       ===================================== */
+
+    .book-widget {
+
+      width: min(100%, 340px);
+
+      margin: 0 auto;
+
+      text-align: center;
+
+    }
+
+
+    /* =====================================
+       BOOK AREA
+       ===================================== */
+
+    .book-area {
+
+      width: 100%;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      gap: clamp(7px, 3vw, 15px);
+
+      padding: 12px 4px 8px;
+
+    }
+
+
+    /* =====================================
+       ARROW CIRCLES
+       ===================================== */
+
+    .arrow {
+
+      width: clamp(34px, 13%, 44px);
+
+      aspect-ratio: 1 / 1;
+
+      flex-shrink: 0;
+
+      border: 1px solid #d8d3ca;
+
+      background: #faf9f6;
+
+      color: #3b3935;
+
+      border-radius: 50%;
+
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+
+      padding: 0;
+
+      cursor: pointer;
+
+
+      transition:
+        transform 0.15s ease,
+        background 0.15s ease;
+
+    }
+
+
+    .arrow:hover {
+
+      background: #f0eee8;
+
+    }
+
+
+    .arrow:active {
+
+      transform: scale(0.94);
+
+    }
+
+
+    /* =====================================
+       ARROW SYMBOL
+
+       NUR das kleine Zeichen wird
+       verschoben.
+
+       -2px = etwas höher
+       ===================================== */
+
+    .arrow-symbol {
+
+      position: relative;
+
+      top: -2px;
+
+      font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+      font-size:
+        clamp(20px, 6vw, 25px);
+
+      line-height: 1;
+
+    }
+
+
+    /* =====================================
+       BOOK SCENE
+       ===================================== */
+
+    .book-scene {
+
+      width: min(64%, 218px);
+
+      aspect-ratio: 2 / 3;
+
+      flex-shrink: 1;
+
+      perspective: 1000px;
+
+    }
+
+
+    /* =====================================
+       BOOK BUTTON
+       ===================================== */
+
+    .book-button {
+
+        width: 100%;
+
+        height: 100%;
+
+        padding: 0;
+
+        border: 0;
+
+        background: transparent;
+
+        cursor: pointer;
+
+        perspective: 1000px;
+
+        /* Verhindert Markieren beim Klicken */
+
+        user-select: none;
+
+        -webkit-user-select: none;
+
+        -webkit-touch-callout: none;
+
+        }
+
+
+    /* =====================================
+       CARD
+       ===================================== */
+
+    .book-card {
+
+      width: 100%;
+
+      height: 100%;
+
+      position: relative;
+
+      transform-style: preserve-3d;
+
+      transition:
+        transform 0.65s
+        cubic-bezier(.2, .7, .2, 1);
+
+    }
+
+
+    .book-card.flipped {
+
+      transform:
+        rotateY(180deg);
+
+    }
+
+
+    /* =====================================
+       CARD FACES
+
+       Rundung der Karte
+       ===================================== */
+
+    .card-face {
+
+      position: absolute;
+
+      inset: 0;
+
+      border-radius: 14px;
+
+      overflow: hidden;
+
+      backface-visibility: hidden;
+
+      -webkit-backface-visibility: hidden;
+
+      box-shadow:
+        0 8px 22px
+        rgba(0, 0, 0, 0.16);
+
+    }
+
+
+    /* =====================================
+       FRONT
+       ===================================== */
+
+    .card-front {
+
+      background: #faf9f6;
+
+    }
+
+
+    .card-front img {
+
+      width: 100%;
+
+      height: 100%;
+
+      display: block;
+
+      object-fit: cover;
+
+    }
+
+
+    /* =====================================
+       BACK
+
+       Die komplette Rückseite ist
+       scrollbar.
+       ===================================== */
+
+    .card-back {
+
+        transform:
+            rotateY(180deg);
+
+        background:
+            linear-gradient(
+            145deg,
+            #aeb9a7,
+            #899886
+            );
+
+        color: #ffffff;
+
+        border: 0;
+
+        padding:
+            clamp(24px, 8%, 32px)
+            clamp(17px, 8%, 24px);
+
+        /* Alles auf der Rückseite mittig */
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        text-align: center;
+
+        /* Die komplette Karte bleibt scrollbar */
+
+        overflow-y: auto;
+
+        overflow-x: hidden;
+
+        -webkit-overflow-scrolling: touch;
+
+        scrollbar-width: thin;
+
+        scrollbar-color:
+            rgba(255,255,255,0.45)
+            transparent;
+
+        /* Verhindert Textmarkierung */
+
+        user-select: none;
+
+        -webkit-user-select: none;
+
+        -webkit-touch-callout: none;
+    }
+
+
+    /* =====================================
+       SCROLLBAR
+       ===================================== */
+
+    .card-back::-webkit-scrollbar {
+
+      width: 4px;
+
+    }
+
+    .card-back::-webkit-scrollbar-track {
+
+      background: transparent;
+
+    }
+
+    .card-back::-webkit-scrollbar-thumb {
+
+      background:
+        rgba(255,255,255,0.45);
+
+      border-radius: 10px;
+
+    }
+
+
+    /* =====================================
+       TOP STAR
+       ===================================== */
+
+    .star {
+
+      color: #ffffff;
+
+      font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+      font-size:
+        clamp(25px, 8vw, 31px);
+
+      line-height: 1;
+
+      margin-bottom: 16px;
+
+    }
+
+
+    /* =====================================
+       BOOK TITLE
+
+       Deutlich größer und luftiger.
+       ===================================== */
+
+    .book-title {
+
+      color: #ffffff;
+
+      font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+
+      /*
+       * Größer als vorher
+       */
+
+      font-size:
+        clamp(27px, 10vw, 35px);
+
+
+      /*
+       * Etwas mehr Abstand zwischen
+       * den Zeilen
+       */
+
+      line-height: 1.08;
+
+
+      /*
+       * Sehr kräftige Schrift
+       */
+
+      font-weight: 900;
+
+
+      /*
+       * Mehr Abstand zwischen
+       * den einzelnen Buchstaben
+       */
+
+      letter-spacing: 0.035em;
+
+
+      /*
+       * Der Titel bekommt bewusst
+       * weniger Breite.
+
+       * Dadurch wird beispielsweise
+
+       * THE
+       * PRIORY
+       * OF THE
+       * ORANGE
+       * TREE
+
+       * wahrscheinlicher.
+       */
+
+      width: 100%;
+
+      max-width: 100%;
+
+      margin:
+        0 auto 25px auto;
+
+
+      text-align: center;
+
+      user-select: none;
+
+        -webkit-user-select: none;
+
+    }
+
+
+    /* =====================================
+       BLURB
+
+       Größer + mittig.
+       ===================================== */
+
+    .blurb {
+
+      color: #ffffff;
+
+
+      font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+
+      /*
+       * DEUTLICH größer als vorher
+       */
+
+      font-size: clamp(16px, 5.5vw, 18px);
+
+
+      /*
+       * Mehr Luft zwischen den Zeilen
+       */
+
+      line-height: 1.7;
+
+
+      /*
+       * Jetzt wirklich zentriert
+       */
+
+      text-align: center;
+      word-spacing: normal;
+
+
+      /*
+       * Etwas schmaler, damit die
+       * Zeilen schöner wirken
+       */
+
+      width: 90%;
+
+      max-width: 90%;
+
+      margin:
+        0 auto;
+
+
+    }
+
+
+    /* =====================================
+       BOTTOM STAR
+       ===================================== */
+
+    .bottom-star {
+
+      color: #ffffff;
+
+
+      font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+
+      font-size:
+        clamp(22px, 7vw, 27px);
+
+
+      line-height: 1;
+
+
+      margin-top: 30px;
+
+      margin-bottom: 4px;
+
+    }
+
+
+    /* =====================================
+       GENRE
+       ===================================== */
+
+    .genre {
+
+      margin-top: 12px;
+
+
+      font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+
+      font-size:
+        clamp(9px, 3vw, 11px);
+
+
+      letter-spacing: 0.14em;
+
+
+      text-transform: uppercase;
+
+
+      color: #77736b;
+
+    }
+
+
+    /* =====================================
+       DOT NAVIGATION
+       ===================================== */
+
+    .navigation {
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      margin-top: 13px;
+
+    }
+
+
+    .dots {
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      gap: 6px;
+
+    }
+
+
+    .dot {
+
+      width: 7px;
+
+      height: 7px;
+
+      padding: 0;
+
+      border: 0;
+
+      border-radius: 50%;
+
+      background: #d8d3ca;
+
+      cursor: pointer;
+
+      transition:
+        width 0.15s ease,
+        background 0.15s ease;
+
+    }
+
+
+    .dot.active {
+
+      width: 20px;
+
+      border-radius: 5px;
+
+      background: #77736b;
+
+    }
+
+
+    /* =====================================
+       VERY SMALL SPACES
+       ===================================== */
+
+    @media (max-width: 220px) {
+
+      .book-area {
+
+        gap: 4px;
+
+      }
+
+
+      .book-scene {
+
+        width: 62%;
+
+      }
+
+
+      .arrow {
+
+        width: 31px;
+
+      }
+
+
+      .arrow-symbol {
+
+        font-size: 18px;
+
+      }
+
+
+      .card-back {
+
+        padding:
+          17px 12px;
+
+      }
+
+
+      .star {
+
+        font-size: 22px;
+
+      }
+
+
+      .book-title {
+
+        font-size: 22px;
+
+        width: 88%;
+
+        max-width: 88%;
+
+        margin-bottom: 18px;
+
+      }
+
+
+      .blurb {
+
+        font-size: 11px;
+
+        line-height: 1.6;
+
+        width: 96%;
+
+        max-width: 96%;
+
+      }
+
+    }
+
+
+    /* =====================================
+       REDUCED MOTION
+       ===================================== */
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .book-card,
+      .dot,
+      .arrow {
+
+        transition: none;
+
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <div class="book-widget">
+
+
+    <!-- =================================
+         BOOK + ARROWS
+         ================================= -->
+
+    <div class="book-area">
+
+
+      <button
+        class="arrow"
+        id="previous"
+        type="button"
+        aria-label="Vorheriges Buch"
+      >
+
+        <span class="arrow-symbol">
+          ‹
+        </span>
+
+      </button>
+
+
+      <div class="book-scene">
+
+
+        <div
+          class="book-button"
+          id="bookButton"
+          role="button"
+          tabindex="0"
+          aria-label="Buch umdrehen"
+        >
+
+
+          <div
+            class="book-card"
+            id="bookCard"
+          >
+
+
+            <!-- =========================
+                 FRONT
+                 ========================= -->
+
+            <div
+              class="card-face card-front"
+            >
+
+              <img
+                id="bookCover"
+                src="images/jade-city.jpg"
+                alt="Jade City Buchcover"
+              >
+
+            </div>
+
+
+            <!-- =========================
+                 BACK
+                 ========================= -->
+
+            <div
+              class="card-face card-back"
+              id="cardBack"
+            >
+
+
+
+              <div
+                class="book-title"
+                id="bookTitle"
+              >
+                Jade City
+              </div>
+
+              <div class="star">
+                ✦
+              </div>
+
+              <p
+                class="blurb"
+                id="bookBlurb"
+              >
+                Jade ist das Lebenselixier
+                der Insel Kekon. Seit
+                Jahrhunderten nutzen die
+                Green-Bone-Krieger ihre
+                magischen Fähigkeiten, um
+                ihre Heimat zu verteidigen.
+
+                Nun sorgt eine neue Droge
+                dafür, dass plötzlich auch
+                Außenstehende Jade benutzen
+                können – und der Konflikt
+                zwischen rivalisierenden
+                Familien eskaliert.
+              </p>
+
+
+              <div class="bottom-star">
+                ✦
+              </div>
+
+
+            </div>
+
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="arrow"
+        id="next"
+        type="button"
+        aria-label="Nächstes Buch"
+      >
+
+        <span class="arrow-symbol">
+          ›
+        </span>
+
+      </button>
+
+
+    </div>
+
+
+    <!-- =================================
+         GENRE
+         ================================= -->
+
+    <div
+      class="genre"
+      id="genre"
+    >
+      Fantasy
+    </div>
+
+
+    <!-- =================================
+         DOTS
+         ================================= -->
+
+    <div class="navigation">
+
+      <div
+        class="dots"
+        id="dots"
+        aria-label="Buchauswahl"
+      ></div>
+
+    </div>
+
+
+  </div>
+
+
+
+  <script>
+
+  /* =====================================
+     YOUR BOOKS
+     ===================================== */
+
+  const books = [
+
+    {
+      title:
+        "JADE CITY",
+
+      genre:
+        "Fantasy",
+
+      cover:
+        "images/jade-city.jpg",
+
+      backColor1:
+        "#c6c1aa",
+
+      backColor2:
+        "#9fa88f",
+
+      blurb:
+        "Jade ist das Lebenselixier der Insel Kekon. " +
+        "Seit Jahrhunderten nutzen die Green-Bone-Krieger " +
+        "ihre magischen Fähigkeiten, um ihre Heimat zu " +
+        "verteidigen. Nun sorgt eine neue Droge dafür, " +
+        "dass plötzlich auch Außenstehende Jade benutzen " +
+        "können – und der Konflikt zwischen rivalisierenden " +
+        "Familien eskaliert."
+    },
+
+
+    {
+      title:
+        "THE PRIORY OF THE ORANGE TREE",
+
+      genre:
+        "Fantasy",
+
+      cover:
+        "images/priory.jpg",
+
+      backColor1:
+        "#b8c4b3",
+
+      backColor2:
+        "#879887",
+
+      blurb:
+        "Ein uraltes Königreich, eine verborgene Bedrohung " +
+        "und eine Welt, deren politische Ordnung langsam " +
+        "ins Wanken gerät."
+    },
+
+
+    {
+      title:
+        "RED WINTER",
+
+      genre:
+        "Fantasy",
+
+      cover:
+        "images/red-winter.jpg",
+
+      backColor1:
+        "#9c7775",
+
+      backColor2:
+        "#654d4d",
+
+      blurb:
+        "Götter, Geister und alte Magie treffen auf eine " +
+        "junge Frau, die zwischen übernatürlichen Mächten " +
+        "und gefährlichen Entscheidungen steht."
+    },
+
+
+    {
+      title:
+        "THE BONE SEASON",
+
+      genre:
+        "Fantasy",
+
+      cover:
+        "images/bone-season.jpg",
+
+      backColor1:
+        "#8d9ba5",
+
+      backColor2:
+        "#566872",
+
+      blurb:
+        "In einer dystopischen Zukunft lebt eine junge Frau " +
+        "mit einer verborgenen Gabe. Als sie entdeckt wird, " +
+        "gerät sie in eine Welt, von deren Existenz sie " +
+        "nichts wusste."
+    }
+
+  ];
+
+
+  /* =====================================
+     CURRENT BOOK
+     ===================================== */
+
+  let currentBook = 0;
+
+
+  /* =====================================
+     SLIDESHOW SETTINGS
+     ===================================== */
+
+  const SLIDESHOW_TIME = 5000;
+
+  let slideshowTimer = null;
+
+
+  /* =====================================
+     ELEMENTS
+     ===================================== */
+
+  const bookCard =
+    document.getElementById(
+      "bookCard"
+    );
+
+
+  const bookCover =
+    document.getElementById(
+      "bookCover"
+    );
+
+
+  const bookTitle =
+    document.getElementById(
+      "bookTitle"
+    );
+
+
+  const bookBlurb =
+    document.getElementById(
+      "bookBlurb"
+    );
+
+
+  const genre =
+    document.getElementById(
+      "genre"
+    );
+
+
+  const dots =
+    document.getElementById(
+      "dots"
+    );
+
+
+  const cardBack =
+    document.getElementById(
+      "cardBack"
+    );
+
+
+  /* =====================================
+     AUTOMATIC BOOK TITLE FORMATTING
+     =====================================
+
+     Der Titel wird automatisch in
+     sinnvoll große Zeilen aufgeteilt.
+
+     Du musst bei den Büchern KEINE
+     Zeilenumbrüche eintragen.
+
+     ===================================== */
+
+  function formatBookTitle(title) {
+
+    const words =
+      title.trim().split(/\s+/);
+
+
+    /* Alten Titel komplett entfernen */
+
+    bookTitle.innerHTML = "";
+
+
+    /* Einwort-Titel */
+
+    if (
+      words.length === 1
+    ) {
+
+      const line =
+        document.createElement(
+          "div"
+        );
+
+
+      line.textContent =
+        words[0];
+
+
+      line.style.textAlign =
+        "center";
+
+
+      bookTitle.appendChild(
+        line
+      );
+
+
+      return;
+
+    }
+
+
+    /*
+     * Maximale ungefähre Zeichenanzahl
+     * pro Zeile.
+     *
+     * Diese Regel gilt für ALLE Bücher.
+     */
+
+    const MAX_LINE_LENGTH = 9;
+
+
+    let lines = [];
+
+    let currentLine = "";
+
+
+    words.forEach(
+      (word) => {
+
+        const testLine =
+          currentLine === ""
+            ? word
+            : currentLine + " " + word;
+
+
+        /*
+         * Passt das nächste Wort noch
+         * in die aktuelle Zeile?
+         */
+
+        if (
+          testLine.length <=
+          MAX_LINE_LENGTH
+        ) {
+
+          currentLine =
+            testLine;
+
+        } else {
+
+          /*
+           * Aktuelle Zeile speichern
+           */
+
+          if (
+            currentLine !== ""
+          ) {
+
+            lines.push(
+              currentLine
+            );
+
+          }
+
+
+          /*
+           * Neue Zeile beginnen
+           */
+
+          currentLine =
+            word;
+
+        }
+
+      }
+    );
+
+
+    /*
+     * Letzte Zeile speichern
+     */
+
+    if (
+      currentLine !== ""
+    ) {
+
+      lines.push(
+        currentLine
+      );
+
+    }
+
+
+    /*
+     * Jede Zeile wird als eigenes
+     * Element erzeugt.
+
+     * Dadurch wird jede Zeile
+     * unabhängig exakt zentriert.
+     */
+
+    lines.forEach(
+      (line) => {
+
+        const lineElement =
+          document.createElement(
+            "div"
+          );
+
+
+        lineElement.textContent =
+          line;
+
+
+        lineElement.style.width =
+          "100%";
+
+
+        lineElement.style.textAlign =
+          "center";
+
+
+        lineElement.style.margin =
+          "0 auto";
+
+
+        bookTitle.appendChild(
+          lineElement
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =====================================
+     DISPLAY BOOK
+     ===================================== */
+
+  function displayBook() {
+
+    const book =
+      books[currentBook];
+
+
+    /* ================================
+       COVER
+       ================================ */
+
+    bookCover.src =
+      book.cover;
+
+
+    bookCover.alt =
+      `Buchcover von ${book.title}`;
+
+
+    /* ================================
+       TITLE
+       ================================ */
+
+    formatBookTitle(
+      book.title
+    );
+
+
+    /* ================================
+       BLURB
+       ================================ */
+
+    bookBlurb.textContent =
+      book.blurb;
+
+
+    /* ================================
+       GENRE
+       ================================ */
+
+    genre.textContent =
+      book.genre;
+
+
+    /* ================================
+       BACKGROUND GRADIENT
+       ================================ */
+
+    cardBack.style.background =
+      `linear-gradient(
+        145deg,
+        ${book.backColor1},
+        ${book.backColor2}
+      )`;
+
+
+    /* ================================
+       ALWAYS SHOW FRONT WHEN
+       CHANGING BOOK
+       ================================ */
+
+    bookCard.classList.remove(
+      "flipped"
+    );
+
+
+    /* ================================
+       RESET SCROLL POSITION
+       ================================ */
+
+    cardBack.scrollTop = 0;
+
+
+    /* ================================
+       UPDATE DOTS
+       ================================ */
+
+    createDots();
+
+  }
+
+
+  /* =====================================
+     CREATE DOT NAVIGATION
+     ===================================== */
+
+  function createDots() {
+
+    dots.innerHTML = "";
+
+
+    books.forEach(
+      (book, index) => {
+
+        const dot =
+          document.createElement(
+            "button"
+          );
+
+
+        dot.type =
+          "button";
+
+
+        dot.className =
+          "dot";
+
+
+        /*
+         * Aktuelles Buch markieren
+         */
+
+        if (
+          index === currentBook
+        ) {
+
+          dot.classList.add(
+            "active"
+          );
+
+        }
+
+
+        dot.setAttribute(
+          "aria-label",
+          `Buch ${index + 1}`
+        );
+
+
+        /*
+         * Klick auf Punkt
+         */
+
+        dot.addEventListener(
+          "click",
+          () => {
+
+            currentBook =
+              index;
+
+
+            displayBook();
+
+
+            /*
+             * Timer neu starten
+             */
+
+            if (
+              !bookCard.classList.contains(
+                "flipped"
+              )
+            ) {
+
+              startSlideshow();
+
+            }
+
+          }
+        );
+
+
+        dots.appendChild(
+          dot
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =====================================
+     NEXT BOOK
+     ===================================== */
+
+  function nextBook() {
+
+    currentBook++;
+
+
+    /*
+     * Nach dem letzten Buch
+     * wieder zum ersten.
+     */
+
+    if (
+      currentBook >=
+      books.length
+    ) {
+
+      currentBook = 0;
+
+    }
+
+
+    displayBook();
+
+  }
+
+
+  /* =====================================
+     PREVIOUS BOOK
+     ===================================== */
+
+  function previousBook() {
+
+    currentBook--;
+
+
+    /*
+     * Vor dem ersten Buch
+     * zum letzten springen.
+     */
+
+    if (
+      currentBook < 0
+    ) {
+
+      currentBook =
+        books.length - 1;
+
+    }
+
+
+    displayBook();
+
+  }
+
+
+  /* =====================================
+     START SLIDESHOW
+     ===================================== */
+
+  function startSlideshow() {
+
+    /*
+     * Alten Timer zuerst entfernen,
+     * damit niemals mehrere Timer
+     * gleichzeitig laufen.
+     */
+
+    stopSlideshow();
+
+
+    /*
+     * Alle 5 Sekunden wechseln.
+     */
+
+    slideshowTimer =
+      setInterval(
+        () => {
+
+          /*
+           * Falls die Karte offen ist,
+           * nicht wechseln.
+           */
+
+          if (
+            bookCard.classList.contains(
+              "flipped"
+            )
+          ) {
+
+            return;
+
+          }
+
+
+          nextBook();
+
+        },
+
+        SLIDESHOW_TIME
+
+      );
+
+  }
+
+
+  /* =====================================
+     STOP SLIDESHOW
+     ===================================== */
+
+  function stopSlideshow() {
+
+    if (
+      slideshowTimer !== null
+    ) {
+
+      clearInterval(
+        slideshowTimer
+      );
+
+
+      slideshowTimer = null;
+
+    }
+
+  }
+
+
+  /* =====================================
+     MANUAL NEXT
+     ===================================== */
+
+  function manualNextBook() {
+
+    nextBook();
+
+
+    /*
+     * Nach einem manuellen Wechsel
+     * wieder 5 Sekunden warten.
+     */
+
+    if (
+      !bookCard.classList.contains(
+        "flipped"
+      )
+    ) {
+
+      startSlideshow();
+
+    }
+
+  }
+
+
+  /* =====================================
+     MANUAL PREVIOUS
+     ===================================== */
+
+  function manualPreviousBook() {
+
+    previousBook();
+
+
+    /*
+     * Timer neu starten.
+     */
+
+    if (
+      !bookCard.classList.contains(
+        "flipped"
+      )
+    ) {
+
+      startSlideshow();
+
+    }
+
+  }
+
+
+  /* =====================================
+     ARROW BUTTONS
+     ===================================== */
+
+  document
+    .getElementById("next")
+    .addEventListener(
+      "click",
+      manualNextBook
+    );
+
+
+  document
+    .getElementById("previous")
+    .addEventListener(
+      "click",
+      manualPreviousBook
+    );
+
+
+  /* =====================================
+     FLIP CARD
+     ===================================== */
+
+  function flipCard() {
+
+    const isFlipped =
+      bookCard.classList.contains(
+        "flipped"
+      );
+
+
+    if (
+      isFlipped
+    ) {
+
+      /*
+       * Rückseite → Vorderseite
+       */
+
+      bookCard.classList.remove(
+        "flipped"
+      );
+
+
+      /*
+       * Slideshow wieder starten
+       */
+
+      startSlideshow();
+
+    } else {
+
+      /*
+       * Vorderseite → Rückseite
+       */
+
+      bookCard.classList.add(
+        "flipped"
+      );
+
+
+      /*
+       * Slideshow pausieren
+       */
+
+      stopSlideshow();
+
+    }
+
+  }
+
+
+  /* =====================================
+     CLICK ON BOOK
+     ===================================== */
+
+  document
+    .getElementById("bookButton")
+    .addEventListener(
+      "click",
+      flipCard
+    );
+
+
+  /* =====================================
+     KEYBOARD FLIP
+     ===================================== */
+
+  document
+    .getElementById("bookButton")
+    .addEventListener(
+      "keydown",
+      (event) => {
+
+        if (
+          event.key === "Enter" ||
+          event.key === " "
+        ) {
+
+          event.preventDefault();
+
+
+          flipCard();
+
+        }
+
+      }
+    );
+
+
+  /* =====================================
+     KEYBOARD ARROWS
+     ===================================== */
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+
+      /*
+       * Nicht reagieren, wenn gerade
+       * in ein Eingabefeld geschrieben wird.
+       */
+
+      if (
+        event.target.matches(
+          "input, textarea, select"
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      /* Nächstes Buch */
+
+      if (
+        event.key ===
+        "ArrowRight"
+      ) {
+
+        manualNextBook();
+
+      }
+
+
+      /* Vorheriges Buch */
+
+      if (
+        event.key ===
+        "ArrowLeft"
+      ) {
+
+        manualPreviousBook();
+
+      }
+
+    }
+  );
+
+
+  /* =====================================
+     INITIALIZE
+     ===================================== */
+
+  displayBook();
+
+
+  /*
+   * Automatische Slideshow starten
+   */
+
+  startSlideshow();
+
+
+</script>
+
+</body>
+</html>
